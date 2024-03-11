@@ -1,5 +1,6 @@
 package com.project.whatsappcomposeui.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -7,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
@@ -15,10 +18,12 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -29,12 +34,23 @@ import androidx.compose.ui.unit.sp
 import com.project.whatsappcomposeui.data.TabData
 import com.project.whatsappcomposeui.data.tabs
 import com.project.whatsappcomposeui.ui.theme.WhatsAppComposeUITheme
+import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TabsComponents() {
+fun TabsComponents(
+    pagerState: PagerState,
+    onTabSelected: (Int) -> Unit,
+) {
 
     var selectedTabIndex by remember {
         mutableIntStateOf(0)
+    }
+
+    LaunchedEffect(key1 = pagerState) {
+        snapshotFlow { pagerState.currentPage }.collectLatest {
+            selectedTabIndex = it
+        }
     }
 
     TabRow(
@@ -53,7 +69,10 @@ fun TabsComponents() {
         tabs.forEachIndexed { index, tab ->
             Tab(
                 selected = index == selectedTabIndex,
-                onClick = { selectedTabIndex = index },
+                onClick = {
+                    selectedTabIndex = index
+                    onTabSelected(index)
+                },
                 text = {
                     TabWithUnReadCount(tab)
                 },
@@ -94,10 +113,11 @@ fun TabTitle(title: String) {
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun TabsComponentsPreview() {
     WhatsAppComposeUITheme {
-        TabsComponents()
+
     }
 }

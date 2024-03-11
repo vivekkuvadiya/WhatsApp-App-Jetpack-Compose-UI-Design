@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.project.whatsappcomposeui.data.tabs
 import com.project.whatsappcomposeui.ui.components.AppBarComponents
 import com.project.whatsappcomposeui.ui.components.TabsComponents
+import com.project.whatsappcomposeui.ui.theme.WhatsAppComposeUITheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -23,9 +26,17 @@ fun HomeScreen() {
         tabs.size
     }
 
+    val scope = rememberCoroutineScope()
+
     Column(Modifier.fillMaxSize()) {
         AppBarComponents()
-        TabsComponents()
+        TabsComponents(
+            pagerState = pagerState,
+            onTabSelected = {
+            scope.launch {
+                pagerState.animateScrollToPage(it)
+            }
+        })
         HorizontalPager(state = pagerState) {
             when(it){
                 0 -> ChatScreen()
@@ -40,5 +51,7 @@ fun HomeScreen() {
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    HomeScreen()
+    WhatsAppComposeUITheme {
+        HomeScreen()
+    }
 }
